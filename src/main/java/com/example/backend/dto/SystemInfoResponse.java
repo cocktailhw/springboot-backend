@@ -14,4 +14,7 @@ public class SystemInfoResponse {
     private final long usedMemoryMb;
     private final long maxMemoryMb;
     private final long uptimeSeconds;
+    private final String activeProfile;
+    private final String environment;
+    private final String description;
 }
