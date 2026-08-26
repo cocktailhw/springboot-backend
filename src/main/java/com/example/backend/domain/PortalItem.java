@@ -45,4 +45,12 @@ public class PortalItem extends BaseTimeEntity {
 
     @Column(nullable = false)
     private int viewCount;
+
+    public void update(ItemType type, String title, String content, String department, String status) {
+        this.type = type;
+        this.title = title;
+        this.content = content;
+        this.department = department;
+        this.status = status;
+    }
 }
