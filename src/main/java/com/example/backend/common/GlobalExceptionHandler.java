@@ -4,6 +4,9 @@ import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -21,6 +24,24 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ResultResponse<Void>> handleEntityNotFound(EntityNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ResultResponse.fail(404, "NOT_FOUND", ex.getMessage()));
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ResultResponse<Void>> handleBadCredentials(BadCredentialsException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ResultResponse.fail(401, "BAD_CREDENTIALS", "아이디 또는 비밀번호가 올바르지 않습니다."));
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ResultResponse<Void>> handleAuthentication(AuthenticationException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ResultResponse.fail(401, "UNAUTHORIZED", "인증에 실패하였습니다."));
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ResultResponse<Void>> handleAccessDenied(AccessDeniedException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ResultResponse.fail(403, "FORBIDDEN", "접근 권한이 없습니다."));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

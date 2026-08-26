@@ -32,6 +32,10 @@ server:
 file:
   upload-dir: ${FILE_UPLOAD_DIR:./uploads}
 
+jwt:
+  secret: ${JWT_SECRET:portal-jwt-secret-key-change-me-at-least-256-bits-long!!}
+  expiration-ms: ${JWT_EXPIRATION_MS:3600000}
+
 # Actuator: expose health only. Never expose env / heapdump.
 management:
   endpoints:
