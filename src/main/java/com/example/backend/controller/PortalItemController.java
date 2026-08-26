@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.backend.common.ApiResponse;
+import com.example.backend.common.ResultResponse;
 import com.example.backend.domain.ItemType;
-import com.example.backend.dto.PortalItemResponse;
 import com.example.backend.service.PortalItemService;
+import com.example.backend.vo.PortalItemVO;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,9 +25,9 @@ public class PortalItemController {
     private final PortalItemService portalItemService;
 
     @GetMapping
-    public ApiResponse<Page<PortalItemResponse>> getItems(
+    public ResultResponse<Page<PortalItemVO>> getPortalItems(
             @RequestParam ItemType type,
             @PageableDefault(size = 10) Pageable pageable) {
-        return ApiResponse.success(portalItemService.findByType(type, pageable));
+        return ResultResponse.ok(portalItemService.selectPortalItemList(type, pageable));
     }
 }
