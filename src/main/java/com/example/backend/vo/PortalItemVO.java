@@ -19,6 +19,9 @@ public class PortalItemVO {
     private final String department;
     private final String status;
     private final int viewCount;
+    private final String originalFileName;
+    private final String storedFileName;
+    private final Long fileSize;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
@@ -31,6 +34,9 @@ public class PortalItemVO {
                 .department(entity.getDepartment())
                 .status(entity.getStatus())
                 .viewCount(entity.getViewCount())
+                .originalFileName(entity.getOriginalFileName())
+                .storedFileName(entity.getStoredFileName())
+                .fileSize(entity.getFileSize())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();

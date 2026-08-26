@@ -3,7 +3,7 @@
 # =============================================================================
 # Profiles: local / dev / prd
 # Sensitive values are injected via environment variables.
-# All profiles default to H2 in-memory for local/demo startup safety.
+# All profiles default to H2 file-based DB for persistence across restarts.
 # =============================================================================
 
 spring:
@@ -18,11 +18,19 @@ spring:
         jdbc:
           time_zone: Asia/Seoul
         format_sql: true
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: ${MULTIPART_MAX_FILE_SIZE:20MB}
+      max-request-size: ${MULTIPART_MAX_REQUEST_SIZE:25MB}
 
 server:
   port: ${SERVER_PORT:8080}
   servlet:
     context-path: /
+
+file:
+  upload-dir: ${FILE_UPLOAD_DIR:./uploads}
 
 # Actuator: expose health only. Never expose env / heapdump.
 management:
@@ -48,7 +56,7 @@ spring:
     activate:
       on-profile: local
   datasource:
-    url: ${DB_URL:jdbc:h2:mem:portal_local;DB_CLOSE_DELAY=-1;MODE=MySQL;DATABASE_TO_LOWER=TRUE}
+    url: ${DB_URL:jdbc:h2:file:./data/portaldb;DB_CLOSE_ON_EXIT=FALSE;AUTO_RECONNECT=TRUE;MODE=MySQL;DATABASE_TO_LOWER=TRUE}
     driver-class-name: ${DB_DRIVER:org.h2.Driver}
     username: ${DB_USERNAME:sa}
     password: ${DB_PASSWORD:}
@@ -81,7 +89,7 @@ spring:
     activate:
       on-profile: dev
   datasource:
-    url: ${DB_URL:jdbc:h2:mem:portal_dev;DB_CLOSE_DELAY=-1;MODE=MySQL;DATABASE_TO_LOWER=TRUE}
+    url: ${DB_URL:jdbc:h2:file:./data/portaldb;DB_CLOSE_ON_EXIT=FALSE;AUTO_RECONNECT=TRUE;MODE=MySQL;DATABASE_TO_LOWER=TRUE}
     driver-class-name: ${DB_DRIVER:org.h2.Driver}
     username: ${DB_USERNAME:sa}
     password: ${DB_PASSWORD:}
@@ -117,7 +125,7 @@ spring:
     activate:
       on-profile: prd
   datasource:
-    url: ${DB_URL:jdbc:h2:mem:portal_prd;DB_CLOSE_DELAY=-1;MODE=MySQL;DATABASE_TO_LOWER=TRUE}
+    url: ${DB_URL:jdbc:h2:file:./data/portaldb;DB_CLOSE_ON_EXIT=FALSE;AUTO_RECONNECT=TRUE;MODE=MySQL;DATABASE_TO_LOWER=TRUE}
     driver-class-name: ${DB_DRIVER:org.h2.Driver}
     username: ${DB_USERNAME:sa}
     password: ${DB_PASSWORD:}

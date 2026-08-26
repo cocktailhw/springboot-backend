@@ -36,6 +36,7 @@ Thumbs.db
 
 # Runtime data
 data/
+uploads/
 *.db
 *.mv.db
 *.trace.db

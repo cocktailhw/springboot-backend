@@ -46,11 +46,31 @@ public class PortalItem extends BaseTimeEntity {
     @Column(nullable = false)
     private int viewCount;
 
+    @Column(length = 255)
+    private String originalFileName;
+
+    @Column(length = 255)
+    private String storedFileName;
+
+    private Long fileSize;
+
     public void update(ItemType type, String title, String content, String department, String status) {
         this.type = type;
         this.title = title;
         this.content = content;
         this.department = department;
         this.status = status;
+    }
+
+    public void updateFileMetadata(String originalFileName, String storedFileName, Long fileSize) {
+        this.originalFileName = originalFileName;
+        this.storedFileName = storedFileName;
+        this.fileSize = fileSize;
+    }
+
+    public void clearFileMetadata() {
+        this.originalFileName = null;
+        this.storedFileName = null;
+        this.fileSize = null;
     }
 }
