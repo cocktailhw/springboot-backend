@@ -1,7 +1,7 @@
 package com.example.backend.service;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,9 +18,8 @@ public class PortalItemService {
 
     private final PortalItemRepository portalItemRepository;
 
-    public List<PortalItemResponse> findByType(ItemType type) {
-        return portalItemRepository.findByTypeOrderByCreatedAtDesc(type).stream()
-                .map(PortalItemResponse::from)
-                .toList();
+    public Page<PortalItemResponse> findByType(ItemType type, Pageable pageable) {
+        return portalItemRepository.findByTypeOrderByCreatedAtDesc(type, pageable)
+                .map(PortalItemResponse::from);
     }
 }

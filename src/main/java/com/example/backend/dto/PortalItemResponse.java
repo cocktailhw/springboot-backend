@@ -20,6 +20,7 @@ public class PortalItemResponse {
     private final String status;
     private final int viewCount;
     private final LocalDateTime createdAt;
+    private final LocalDateTime updatedAt;
 
     public static PortalItemResponse from(PortalItem item) {
         return PortalItemResponse.builder()
@@ -31,6 +32,7 @@ public class PortalItemResponse {
                 .status(item.getStatus())
                 .viewCount(item.getViewCount())
                 .createdAt(item.getCreatedAt())
+                .updatedAt(item.getUpdatedAt())
                 .build();
     }
 }
