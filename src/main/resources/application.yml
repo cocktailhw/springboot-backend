@@ -3,7 +3,7 @@
 # =============================================================================
 # Profiles: local / dev / prd
 # Sensitive values are injected via environment variables.
-# All profiles default to H2 file-based DB for persistence across restarts.
+# local: H2 file DB | dev/prd: MariaDB (override with DB_* env vars)
 # =============================================================================
 
 spring:
@@ -85,7 +85,7 @@ logging:
     com.example.backend: ${LOG_LEVEL_APP:DEBUG}
 
 # -----------------------------------------------------------------------------
-# dev
+# dev (MariaDB)
 # -----------------------------------------------------------------------------
 ---
 spring:
@@ -93,9 +93,9 @@ spring:
     activate:
       on-profile: dev
   datasource:
-    url: ${DB_URL:jdbc:h2:file:./data/portaldb;DB_CLOSE_ON_EXIT=FALSE;AUTO_RECONNECT=TRUE;MODE=MySQL;DATABASE_TO_LOWER=TRUE}
-    driver-class-name: ${DB_DRIVER:org.h2.Driver}
-    username: ${DB_USERNAME:sa}
+    url: ${DB_URL:jdbc:mariadb://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:portal}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8}
+    driver-class-name: ${DB_DRIVER:org.mariadb.jdbc.Driver}
+    username: ${DB_USERNAME:portal}
     password: ${DB_PASSWORD:}
     hikari:
       pool-name: PortalHikariPool-Dev
@@ -105,15 +105,11 @@ spring:
       idle-timeout: 600000
       max-lifetime: 1800000
       validation-timeout: 5000
-  h2:
-    console:
-      enabled: ${H2_CONSOLE_ENABLED:false}
-      path: /h2-console
   jpa:
     hibernate:
       ddl-auto: ${JPA_DDL_AUTO:update}
     show-sql: ${JPA_SHOW_SQL:true}
-    database-platform: ${JPA_DATABASE_PLATFORM:org.hibernate.dialect.H2Dialect}
+    database-platform: ${JPA_DATABASE_PLATFORM:org.hibernate.dialect.MariaDBDialect}
 
 logging:
   level:
@@ -121,7 +117,7 @@ logging:
     com.example.backend: ${LOG_LEVEL_APP:DEBUG}
 
 # -----------------------------------------------------------------------------
-# prd
+# prd (MariaDB)
 # -----------------------------------------------------------------------------
 ---
 spring:
@@ -129,9 +125,9 @@ spring:
     activate:
       on-profile: prd
   datasource:
-    url: ${DB_URL:jdbc:h2:file:./data/portaldb;DB_CLOSE_ON_EXIT=FALSE;AUTO_RECONNECT=TRUE;MODE=MySQL;DATABASE_TO_LOWER=TRUE}
-    driver-class-name: ${DB_DRIVER:org.h2.Driver}
-    username: ${DB_USERNAME:sa}
+    url: ${DB_URL:jdbc:mariadb://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:portal}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8}
+    driver-class-name: ${DB_DRIVER:org.mariadb.jdbc.Driver}
+    username: ${DB_USERNAME:}
     password: ${DB_PASSWORD:}
     hikari:
       pool-name: PortalHikariPool-Prd
@@ -141,14 +137,11 @@ spring:
       idle-timeout: 300000
       max-lifetime: 1200000
       validation-timeout: 3000
-  h2:
-    console:
-      enabled: false
   jpa:
     hibernate:
-      ddl-auto: ${JPA_DDL_AUTO:update}
+      ddl-auto: ${JPA_DDL_AUTO:validate}
     show-sql: false
-    database-platform: ${JPA_DATABASE_PLATFORM:org.hibernate.dialect.H2Dialect}
+    database-platform: ${JPA_DATABASE_PLATFORM:org.hibernate.dialect.MariaDBDialect}
 
 logging:
   level:
