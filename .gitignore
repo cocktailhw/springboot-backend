@@ -1,11 +1,45 @@
+# Build
 target/
-data/
+build/
+out/
+*.class
+*.jar
+*.war
+*.ear
+*.log
+
+# Local / secret configs (never commit)
+.env
+.env.*
+!.env.example
+*.local.yml
+*.local.yaml
+*.local.properties
+application-secret.yml
+application-secret.properties
+application-local.yml
+application-local.properties
+
+# IDE
 .idea/
 *.iml
 .classpath
 .project
 .settings/
 .vscode/
-*.class
-*.log
+*.swp
+*.swo
+
+# OS
 .DS_Store
+Thumbs.db
+
+# Runtime data
+data/
+*.db
+*.mv.db
+*.trace.db
+.h2.db
+
+# Maven / Gradle wrappers local
+.mvn/wrapper/maven-wrapper.jar
