@@ -40,19 +40,27 @@ jwt:
   expiration-ms: ${JWT_EXPIRATION_MS:3600000}
 
 # Actuator: expose health only. Never expose env / heapdump.
+# probes.enabled 로 /actuator/health/{liveness,readiness} 를 노출한다.
 management:
   endpoints:
     web:
       exposure:
-        include: health
+        include: "health"
         exclude: env,heapdump,threaddump,logfile,shutdown,beans,conditions,configprops,mappings,metrics,prometheus
   endpoint:
     health:
-      show-details: never
+      probes:
+        enabled: true
+      show-details: ${HEALTH_SHOW_DETAILS:always}
     env:
       enabled: false
     heapdump:
       enabled: false
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
 
 # -----------------------------------------------------------------------------
 # local
