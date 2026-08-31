@@ -4,6 +4,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
@@ -42,6 +43,19 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ResultResponse<Void>> handleAccessDenied(AccessDeniedException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(ResultResponse.fail(403, "FORBIDDEN", "접근 권한이 없습니다."));
+    }
+
+    @ExceptionHandler(DuplicateRequestException.class)
+    public ResponseEntity<ResultResponse<Void>> handleDuplicateRequest(DuplicateRequestException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ResultResponse.fail(409, "DUPLICATE_REQUEST", ex.getMessage()));
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ResultResponse<Void>> handleNotReadable(HttpMessageNotReadableException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ResultResponse.fail(400, "INVALID_REQUEST_BODY",
+                        "요청 본문을 해석할 수 없습니다. 항목 유형은 NOTICE 만 사용할 수 있습니다."));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

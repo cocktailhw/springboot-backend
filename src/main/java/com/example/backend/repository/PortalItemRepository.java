@@ -1,5 +1,6 @@
 package com.example.backend.repository;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -14,4 +15,7 @@ public interface PortalItemRepository extends JpaRepository<PortalItem, Long> {
     Page<PortalItem> findByTypeOrderByCreatedAtDesc(ItemType type, Pageable pageable);
 
     Optional<PortalItem> findByStoredFileName(String storedFileName);
+
+    boolean existsByTypeAndTitleAndDepartmentAndCreatedAtAfter(
+            ItemType type, String title, String department, LocalDateTime createdAt);
 }

@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.backend.common.DuplicateRequestException;
 import com.example.backend.domain.ItemType;
 import com.example.backend.domain.PortalItem;
 import com.example.backend.repository.PortalItemRepository;
@@ -33,6 +35,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class PortalItemServiceImpl implements PortalItemService {
+
+    private static final long DUPLICATE_WINDOW_SECONDS = 10;
 
     private final PortalItemRepository portalItemRepository;
 
@@ -60,6 +64,8 @@ public class PortalItemServiceImpl implements PortalItemService {
     @Override
     @Transactional
     public PortalItemVO createItem(PortalItemRequest request, MultipartFile file) {
+        validateNotDuplicated(request);
+
         String originalFileName = null;
         String storedFileName = null;
         Long fileSize = null;
@@ -140,6 +146,19 @@ public class PortalItemServiceImpl implements PortalItemService {
                 .map(PortalItem::getOriginalFileName)
                 .filter(StringUtils::hasText)
                 .orElse(storedFileName);
+    }
+
+    /**
+     * 새로고침·더블클릭으로 동일 게시글이 연속 접수되는 것을 차단한다.
+     */
+    private void validateNotDuplicated(PortalItemRequest request) {
+        LocalDateTime threshold = LocalDateTime.now().minusSeconds(DUPLICATE_WINDOW_SECONDS);
+        boolean duplicated = portalItemRepository.existsByTypeAndTitleAndDepartmentAndCreatedAtAfter(
+                request.getType(), request.getTitle(), request.getDepartment(), threshold);
+
+        if (duplicated) {
+            throw new DuplicateRequestException("동일한 제목의 게시글이 이미 접수되었습니다.");
+        }
     }
 
     private PortalItem findPortalItem(Long id) {
