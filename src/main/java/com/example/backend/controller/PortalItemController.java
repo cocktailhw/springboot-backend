@@ -80,6 +80,7 @@ public class PortalItemController {
 
         return ResponseEntity.ok()
                 .contentType(mediaType)
+                .contentLength(portalItemService.getFileSize(storedFileName))
                 .header(HttpHeaders.CONTENT_DISPOSITION,
                         "attachment; filename=\"" + originalFileName + "\"; filename*=UTF-8''" + encodedFileName)
                 .body(resource);

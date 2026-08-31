@@ -21,5 +21,7 @@ public interface PortalItemService {
 
     Resource loadFileAsResource(String storedFileName);
 
+    long getFileSize(String storedFileName);
+
     String getOriginalFileName(String storedFileName);
 }
