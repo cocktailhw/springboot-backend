@@ -55,6 +55,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
+                        .requestMatchers("/actuator/prometheus").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/portal/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/portal/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/portal/**").hasRole("ADMIN")
