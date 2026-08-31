@@ -109,7 +109,6 @@ spring:
     hibernate:
       ddl-auto: ${JPA_DDL_AUTO:update}
     show-sql: ${JPA_SHOW_SQL:true}
-    database-platform: ${JPA_DATABASE_PLATFORM:org.hibernate.dialect.MariaDBDialect}
 
 logging:
   level:
@@ -141,7 +140,6 @@ spring:
     hibernate:
       ddl-auto: ${JPA_DDL_AUTO:validate}
     show-sql: false
-    database-platform: ${JPA_DATABASE_PLATFORM:org.hibernate.dialect.MariaDBDialect}
 
 logging:
   level:

@@ -7,6 +7,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 
 import lombok.AccessLevel;
@@ -34,7 +35,8 @@ public class PortalItem extends BaseTimeEntity {
     @Column(nullable = false, length = 200)
     private String title;
 
-    @Column(nullable = false, columnDefinition = "CLOB")
+    @Lob
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
     @Column(nullable = false, length = 100)
