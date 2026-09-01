@@ -11,6 +11,8 @@ spring:
     name: portal-backend
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:local}
+  lifecycle:
+    timeout-per-shutdown-phase: 20s
   jpa:
     open-in-view: false
     properties:
@@ -26,6 +28,7 @@ spring:
 
 server:
   port: ${SERVER_PORT:8080}
+  shutdown: graceful
   servlet:
     context-path: /
 
