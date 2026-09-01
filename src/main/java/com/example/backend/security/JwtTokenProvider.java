@@ -19,18 +19,28 @@ import org.springframework.stereotype.Component;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 
 @Component
 public class JwtTokenProvider {
 
-    private final SecretKey secretKey;
+    private final String secret;
     private final long expirationMs;
+    private SecretKey secretKey;
 
     public JwtTokenProvider(
             @Value("${jwt.secret}") String secret,
             @Value("${jwt.expiration-ms:3600000}") long expirationMs) {
-        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        this.secret = secret;
         this.expirationMs = expirationMs;
+    }
+
+    @PostConstruct
+    void validateSecret() {
+        if (secret.getBytes(StandardCharsets.UTF_8).length < 32) {
+            throw new IllegalStateException("JWT secret must be at least 256 bits (32 bytes).");
+        }
+        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
     public String createAccessToken(String username, String role) {
