@@ -1,7 +1,9 @@
 package com.example.backend.config;
 
+import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -37,6 +39,9 @@ public class SecurityConfig {
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
+    @Value("${cors.allowed-origins:http://localhost:5173,http://localhost:8080}")
+    private String corsAllowedOrigins;
+
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -49,7 +54,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/login", "/api/v1/auth/logout").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/health/**", "/actuator/prometheus").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/portal/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/portal/**").hasRole("ADMIN")
@@ -64,12 +69,17 @@ public class SecurityConfig {
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
+        List<String> allowedOrigins = Arrays.stream(corsAllowedOrigins.split(","))
+                .map(String::trim)
+                .filter(origin -> !origin.isEmpty())
+                .toList();
+
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("*"));
+        configuration.setAllowedOrigins(allowedOrigins);
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
-        configuration.setExposedHeaders(List.of("Authorization", "Content-Disposition"));
-        configuration.setAllowCredentials(false);
+        configuration.setExposedHeaders(List.of("Content-Disposition"));
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
