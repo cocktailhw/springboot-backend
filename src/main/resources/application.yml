@@ -60,7 +60,8 @@ management:
     health:
       probes:
         enabled: true
-      show-details: ${HEALTH_SHOW_DETAILS:always}
+      show-details: never
+      # dev 전용 상세 노출: show-details: when-authorized
     env:
       enabled: false
     heapdump:

@@ -12,6 +12,8 @@ import lombok.Getter;
 @Builder
 public class PortalItemVO {
 
+    private static final String DOWNLOAD_PATH_PREFIX = "/api/v1/portal/files/download/";
+
     private final Long id;
     private final ItemType type;
     private final String title;
@@ -20,12 +22,17 @@ public class PortalItemVO {
     private final String status;
     private final int viewCount;
     private final String originalFileName;
-    private final String storedFileName;
+    private final String downloadUrl;
     private final Long fileSize;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
     public static PortalItemVO from(PortalItem entity) {
+        String storedFileName = entity.getStoredFileName();
+        String downloadUrl = storedFileName != null && !storedFileName.isBlank()
+                ? DOWNLOAD_PATH_PREFIX + storedFileName
+                : null;
+
         return PortalItemVO.builder()
                 .id(entity.getId())
                 .type(entity.getType())
@@ -35,7 +42,7 @@ public class PortalItemVO {
                 .status(entity.getStatus())
                 .viewCount(entity.getViewCount())
                 .originalFileName(entity.getOriginalFileName())
-                .storedFileName(entity.getStoredFileName())
+                .downloadUrl(downloadUrl)
                 .fileSize(entity.getFileSize())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
