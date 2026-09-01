@@ -95,7 +95,7 @@ public class MinioFileStorageService implements FileStorageService {
         try {
             return s3Client.getObject(getRequest, ResponseTransformer.toInputStream());
         } catch (NoSuchKeyException e) {
-            throw new EntityNotFoundException("파일을 찾을 수 없습니다. storedFileName=" + storedFileName);
+            throw new EntityNotFoundException("파일을 찾을 수 없습니다.");
         } catch (S3Exception e) {
             throw new IllegalStateException("파일 조회에 실패했습니다.", e);
         }
@@ -113,7 +113,7 @@ public class MinioFileStorageService implements FileStorageService {
         try {
             return s3Client.headObject(headRequest).contentLength();
         } catch (NoSuchKeyException e) {
-            throw new EntityNotFoundException("파일을 찾을 수 없습니다. storedFileName=" + storedFileName);
+            throw new EntityNotFoundException("파일을 찾을 수 없습니다.");
         } catch (S3Exception e) {
             throw new IllegalStateException("파일 정보 조회에 실패했습니다.", e);
         }

@@ -69,10 +69,4 @@ public class PortalItem extends BaseTimeEntity {
         this.storedFileName = storedFileName;
         this.fileSize = fileSize;
     }
-
-    public void clearFileMetadata() {
-        this.originalFileName = null;
-        this.storedFileName = null;
-        this.fileSize = null;
-    }
 }

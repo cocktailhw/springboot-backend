@@ -4,7 +4,6 @@ import java.io.InputStream;
 import java.time.LocalDateTime;
 
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -16,6 +15,7 @@ import com.example.backend.common.DuplicateRequestException;
 import com.example.backend.domain.ItemType;
 import com.example.backend.domain.PortalItem;
 import com.example.backend.repository.PortalItemRepository;
+import com.example.backend.service.FileDownloadInfo;
 import com.example.backend.service.FileStorageService;
 import com.example.backend.service.PortalItemService;
 import com.example.backend.vo.PortalItemRequest;
@@ -105,25 +105,23 @@ public class PortalItemServiceImpl implements PortalItemService {
     }
 
     @Override
-    public Resource loadFileAsResource(String storedFileName) {
+    public FileDownloadInfo getFileDownloadInfo(String storedFileName) {
+        PortalItem item = portalItemRepository.findByStoredFileName(storedFileName)
+                .orElseThrow(() -> new EntityNotFoundException("파일을 찾을 수 없습니다."));
+
         InputStream inputStream = fileStorageService.download(storedFileName);
-        return new InputStreamResource(inputStream);
-    }
+        long contentLength = item.getFileSize() != null && item.getFileSize() > 0
+                ? item.getFileSize()
+                : fileStorageService.getContentLength(storedFileName);
+        String originalFileName = StringUtils.hasText(item.getOriginalFileName())
+                ? item.getOriginalFileName()
+                : storedFileName;
 
-    @Override
-    public long getFileSize(String storedFileName) {
-        return portalItemRepository.findByStoredFileName(storedFileName)
-                .map(PortalItem::getFileSize)
-                .filter(size -> size != null && size > 0)
-                .orElseGet(() -> fileStorageService.getContentLength(storedFileName));
-    }
-
-    @Override
-    public String getOriginalFileName(String storedFileName) {
-        return portalItemRepository.findByStoredFileName(storedFileName)
-                .map(PortalItem::getOriginalFileName)
-                .filter(StringUtils::hasText)
-                .orElse(storedFileName);
+        return new FileDownloadInfo(
+                new InputStreamResource(inputStream),
+                originalFileName,
+                contentLength
+        );
     }
 
     /**
@@ -141,7 +139,7 @@ public class PortalItemServiceImpl implements PortalItemService {
 
     private PortalItem findPortalItem(Long id) {
         return portalItemRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("포털 항목을 찾을 수 없습니다. id=" + id));
+                .orElseThrow(() -> new EntityNotFoundException("포털 항목을 찾을 수 없습니다."));
     }
 
     private boolean hasFile(MultipartFile file) {

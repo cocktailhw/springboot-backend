@@ -11,7 +11,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.MediaTypeFactory;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.backend.common.ResultResponse;
 import com.example.backend.domain.ItemType;
+import com.example.backend.service.FileDownloadInfo;
 import com.example.backend.service.PortalItemService;
 import com.example.backend.vo.PortalItemRequest;
 import com.example.backend.vo.PortalItemVO;
@@ -34,7 +34,6 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/v1/portal")
-@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class PortalItemController {
 
@@ -70,19 +69,19 @@ public class PortalItemController {
 
     @GetMapping("/files/download/{storedFileName}")
     public ResponseEntity<Resource> downloadFile(@PathVariable String storedFileName) {
-        Resource resource = portalItemService.loadFileAsResource(storedFileName);
-        String originalFileName = portalItemService.getOriginalFileName(storedFileName);
-        String encodedFileName = URLEncoder.encode(originalFileName, StandardCharsets.UTF_8)
+        FileDownloadInfo fileInfo = portalItemService.getFileDownloadInfo(storedFileName);
+        String encodedFileName = URLEncoder.encode(fileInfo.originalFileName(), StandardCharsets.UTF_8)
                 .replace("+", "%20");
 
-        MediaType mediaType = MediaTypeFactory.getMediaType(originalFileName)
+        MediaType mediaType = MediaTypeFactory.getMediaType(fileInfo.originalFileName())
                 .orElse(MediaType.APPLICATION_OCTET_STREAM);
 
         return ResponseEntity.ok()
                 .contentType(mediaType)
-                .contentLength(portalItemService.getFileSize(storedFileName))
+                .contentLength(fileInfo.contentLength())
                 .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + originalFileName + "\"; filename*=UTF-8''" + encodedFileName)
-                .body(resource);
+                        "attachment; filename=\"" + fileInfo.originalFileName()
+                                + "\"; filename*=UTF-8''" + encodedFileName)
+                .body(fileInfo.resource());
     }
 }

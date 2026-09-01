@@ -1,6 +1,5 @@
 package com.example.backend.service;
 
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,9 +18,5 @@ public interface PortalItemService {
 
     void deleteItem(Long id);
 
-    Resource loadFileAsResource(String storedFileName);
-
-    long getFileSize(String storedFileName);
-
-    String getOriginalFileName(String storedFileName);
+    FileDownloadInfo getFileDownloadInfo(String storedFileName);
 }

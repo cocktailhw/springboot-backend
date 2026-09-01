@@ -1,19 +1,15 @@
 package com.example.backend.security;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 
 import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
@@ -26,13 +22,16 @@ public class JwtTokenProvider {
 
     private final String secret;
     private final long expirationMs;
+    private final UserDetailsService userDetailsService;
     private SecretKey secretKey;
 
     public JwtTokenProvider(
             @Value("${jwt.secret}") String secret,
-            @Value("${jwt.expiration-ms:3600000}") long expirationMs) {
+            @Value("${jwt.expiration-ms:3600000}") long expirationMs,
+            UserDetailsService userDetailsService) {
         this.secret = secret;
         this.expirationMs = expirationMs;
+        this.userDetailsService = userDetailsService;
     }
 
     @PostConstruct
@@ -67,27 +66,8 @@ public class JwtTokenProvider {
 
     public Authentication getAuthentication(String token) {
         Claims claims = parseClaims(token);
-        String username = claims.getSubject();
-        String role = normalizeRole(claims.get("role", String.class));
-
-        Collection<? extends GrantedAuthority> authorities =
-                List.of(new SimpleGrantedAuthority(role));
-
-        UserDetails principal = User.builder()
-                .username(username)
-                .password("")
-                .authorities(authorities)
-                .build();
-
-        return new UsernamePasswordAuthenticationToken(principal, token, authorities);
-    }
-
-    public String getUsername(String token) {
-        return parseClaims(token).getSubject();
-    }
-
-    public String getRole(String token) {
-        return normalizeRole(parseClaims(token).get("role", String.class));
+        UserDetails userDetails = userDetailsService.loadUserByUsername(claims.getSubject());
+        return new UsernamePasswordAuthenticationToken(userDetails, token, userDetails.getAuthorities());
     }
 
     private Claims parseClaims(String token) {
