@@ -57,6 +57,13 @@ public class GlobalExceptionHandler {
                 .body(ResultResponse.fail(403, "FORBIDDEN", "접근 권한이 없습니다."));
     }
 
+    @ExceptionHandler(DuplicateUsernameException.class)
+    public ResponseEntity<ResultResponse<Void>> handleDuplicateUsername(DuplicateUsernameException ex) {
+        log.debug("Duplicate username", ex);
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ResultResponse.fail(409, "DUPLICATE_USERNAME", "이미 사용 중인 아이디입니다."));
+    }
+
     @ExceptionHandler(DuplicateRequestException.class)
     public ResponseEntity<ResultResponse<Void>> handleDuplicateRequest(DuplicateRequestException ex) {
         log.debug("Duplicate request", ex);

@@ -7,8 +7,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,9 +18,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend.common.ResultResponse;
-import com.example.backend.security.JwtTokenProvider;
+import com.example.backend.service.AuthService;
 import com.example.backend.vo.LoginRequest;
 import com.example.backend.vo.LoginResponse;
+import com.example.backend.vo.MemberResponse;
+import com.example.backend.vo.SignupRequest;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,34 +34,24 @@ public class AuthController {
 
     private static final String ACCESS_TOKEN_COOKIE = "accessToken";
 
-    private final AuthenticationManager authenticationManager;
-    private final JwtTokenProvider jwtTokenProvider;
+    private final AuthService authService;
 
     @Value("${jwt.expiration-ms:3600000}")
     private long jwtExpirationMs;
 
+    @PostMapping("/signup")
+    public ResultResponse<MemberResponse> signup(@Valid @RequestBody SignupRequest request) {
+        return ResultResponse.ok("회원가입이 완료되었습니다.", authService.signup(request));
+    }
+
     @PostMapping("/login")
     public ResponseEntity<ResultResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest request) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
-        );
-
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String role = userDetails.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .findFirst()
-                .orElse("ROLE_USER");
-
-        String accessToken = jwtTokenProvider.createAccessToken(userDetails.getUsername(), role);
-
-        LoginResponse response = LoginResponse.builder()
-                .username(userDetails.getUsername())
-                .role(role)
-                .build();
+        AuthService.LoginResult loginResult = authService.login(request);
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, buildAccessTokenCookie(accessToken, jwtExpirationMs).toString())
-                .body(ResultResponse.ok(response));
+                .header(HttpHeaders.SET_COOKIE,
+                        buildAccessTokenCookie(loginResult.accessToken(), jwtExpirationMs).toString())
+                .body(ResultResponse.ok(loginResult.response()));
     }
 
     @PostMapping("/logout")
