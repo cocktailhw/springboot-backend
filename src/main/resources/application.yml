@@ -1,9 +1,8 @@
 # =============================================================================
-# Portal Backend Service (MSA) - Multi Profile Configuration
+# Portal Backend Service (MSA) - Common Configuration
 # =============================================================================
-# Profiles: local / dev / prd
+# Profiles: local / dev / prd (default: local)
 # Sensitive values are injected via environment variables.
-# local: H2 file DB | dev/prd: MariaDB (override with DB_* env vars)
 # =============================================================================
 
 spring:
@@ -54,7 +53,6 @@ cors:
   allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:8080}
 
 # Actuator: expose health/prometheus only. Never expose env / heapdump.
-# probes.enabled 로 /actuator/health/{liveness,readiness} 를 노출한다.
 management:
   endpoints:
     web:
@@ -66,7 +64,6 @@ management:
       probes:
         enabled: true
       show-details: never
-      # dev 전용 상세 노출: show-details: when-authorized
     env:
       enabled: false
     heapdump:
@@ -83,98 +80,3 @@ management:
       enabled: true
     readinessstate:
       enabled: true
-
-# -----------------------------------------------------------------------------
-# local
-# -----------------------------------------------------------------------------
----
-spring:
-  config:
-    activate:
-      on-profile: local
-  datasource:
-    url: ${DB_URL:jdbc:h2:file:./data/portaldb;DB_CLOSE_ON_EXIT=FALSE;AUTO_RECONNECT=TRUE;MODE=MySQL;DATABASE_TO_LOWER=TRUE}
-    driver-class-name: ${DB_DRIVER:org.h2.Driver}
-    username: ${DB_USERNAME:sa}
-    password: ${DB_PASSWORD:}
-    hikari:
-      pool-name: PortalHikariPool-Local
-      maximum-pool-size: ${HIKARI_MAX_POOL_SIZE:5}
-      minimum-idle: ${HIKARI_MIN_IDLE:2}
-      connection-timeout: 30000
-  h2:
-    console:
-      enabled: ${H2_CONSOLE_ENABLED:false}
-      path: /h2-console
-  jpa:
-    hibernate:
-      ddl-auto: ${JPA_DDL_AUTO:update}
-    show-sql: ${JPA_SHOW_SQL:false}
-    database-platform: ${JPA_DATABASE_PLATFORM:org.hibernate.dialect.H2Dialect}
-
-logging:
-  level:
-    root: ${LOG_LEVEL_ROOT:INFO}
-    com.example.backend: ${LOG_LEVEL_APP:DEBUG}
-
-# -----------------------------------------------------------------------------
-# dev (MariaDB)
-# -----------------------------------------------------------------------------
----
-spring:
-  config:
-    activate:
-      on-profile: dev
-  datasource:
-    url: ${DB_URL:jdbc:mariadb://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:portal}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8}
-    driver-class-name: ${DB_DRIVER:org.mariadb.jdbc.Driver}
-    username: ${DB_USERNAME:portal}
-    password: ${DB_PASSWORD:}
-    hikari:
-      pool-name: PortalHikariPool-Dev
-      maximum-pool-size: ${HIKARI_MAX_POOL_SIZE:10}
-      minimum-idle: ${HIKARI_MIN_IDLE:5}
-      connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1800000
-      validation-timeout: 5000
-  jpa:
-    hibernate:
-      ddl-auto: ${JPA_DDL_AUTO:update}
-    show-sql: ${JPA_SHOW_SQL:false}
-
-logging:
-  level:
-    root: ${LOG_LEVEL_ROOT:INFO}
-    com.example.backend: ${LOG_LEVEL_APP:DEBUG}
-
-# -----------------------------------------------------------------------------
-# prd (MariaDB)
-# -----------------------------------------------------------------------------
----
-spring:
-  config:
-    activate:
-      on-profile: prd
-  datasource:
-    url: ${DB_URL:jdbc:mariadb://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:portal}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8}
-    driver-class-name: ${DB_DRIVER:org.mariadb.jdbc.Driver}
-    username: ${DB_USERNAME:}
-    password: ${DB_PASSWORD:}
-    hikari:
-      pool-name: PortalHikariPool-Prd
-      maximum-pool-size: ${HIKARI_MAX_POOL_SIZE:20}
-      minimum-idle: ${HIKARI_MIN_IDLE:10}
-      connection-timeout: 20000
-      idle-timeout: 300000
-      max-lifetime: 1200000
-      validation-timeout: 3000
-  jpa:
-    hibernate:
-      ddl-auto: ${JPA_DDL_AUTO:validate}
-    show-sql: false
-
-logging:
-  level:
-    root: ${LOG_LEVEL_ROOT:WARN}
-    com.example.backend: ${LOG_LEVEL_APP:INFO}

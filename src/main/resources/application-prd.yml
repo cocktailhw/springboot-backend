@@ -1,0 +1,34 @@
+# =============================================================================
+# prd profile - MariaDB (springdoc 외부 노출 차단)
+# =============================================================================
+
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:mariadb://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:portal}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8}
+    driver-class-name: ${DB_DRIVER:org.mariadb.jdbc.Driver}
+    username: ${DB_USERNAME:}
+    password: ${DB_PASSWORD:}
+    hikari:
+      pool-name: PortalHikariPool-Prd
+      maximum-pool-size: ${HIKARI_MAX_POOL_SIZE:20}
+      minimum-idle: ${HIKARI_MIN_IDLE:10}
+      connection-timeout: 20000
+      idle-timeout: 300000
+      max-lifetime: 1200000
+      validation-timeout: 3000
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:validate}
+    show-sql: false
+
+# 운영 환경: Swagger / OpenAPI 외부 노출 차단
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+logging:
+  level:
+    root: ${LOG_LEVEL_ROOT:WARN}
+    com.example.backend: ${LOG_LEVEL_APP:INFO}
