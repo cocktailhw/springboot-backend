@@ -23,6 +23,7 @@ public interface PortalItemRepository extends JpaRepository<PortalItem, Long> {
     /**
      * type 필수, category·keyword는 선택.
      * keyword가 있으면 제목·부서·내용에 대해 LIKE 검색한다.
+     * content는 @Lob(CLOB/TEXT) 이므로 Hibernate 6에서 LOWER 적용 전 CAST 필요.
      */
     @Query("""
             SELECT p FROM PortalItem p
@@ -33,7 +34,7 @@ public interface PortalItemRepository extends JpaRepository<PortalItem, Long> {
                    OR :keyword = ''
                    OR LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%'))
                    OR LOWER(p.department) LIKE LOWER(CONCAT('%', :keyword, '%'))
-                   OR LOWER(p.content) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                   OR LOWER(CAST(p.content AS string)) LIKE LOWER(CONCAT('%', :keyword, '%'))
               )
             """)
     Page<PortalItem> search(
