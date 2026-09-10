@@ -40,6 +40,8 @@ minio:
 jwt:
   secret: ${JWT_SECRET}
   expiration-ms: ${JWT_EXPIRATION_MS:3600000}
+  cookie:
+    secure: ${JWT_COOKIE_SECURE:true}
 
 # K8s Secret 등으로 BCrypt 해시 주입 (평문 비밀번호 금지)
 auth:

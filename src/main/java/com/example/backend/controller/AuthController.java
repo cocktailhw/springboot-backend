@@ -46,6 +46,9 @@ public class AuthController {
     @Value("${jwt.expiration-ms:3600000}")
     private long jwtExpirationMs;
 
+    @Value("${jwt.cookie.secure:true}")
+    private boolean cookieSecure;
+
     @Operation(summary = "회원가입", description = "신규 회원을 등록합니다. 기본 권한은 ROLE_USER 입니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "회원가입 성공",
@@ -117,7 +120,7 @@ public class AuthController {
     private ResponseCookie buildAccessTokenCookie(String token, long maxAgeMs) {
         return ResponseCookie.from(ACCESS_TOKEN_COOKIE, token)
                 .httpOnly(true)
-                .secure(true)
+                .secure(cookieSecure)
                 .path("/")
                 .sameSite("Lax")
                 .maxAge(Duration.ofMillis(maxAgeMs))

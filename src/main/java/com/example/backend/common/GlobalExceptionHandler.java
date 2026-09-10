@@ -2,6 +2,7 @@ package com.example.backend.common;
 
 import java.util.stream.Collectors;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -71,12 +72,19 @@ public class GlobalExceptionHandler {
                 .body(ResultResponse.fail(409, "DUPLICATE_REQUEST", "동일한 요청이 이미 접수되었습니다."));
     }
 
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ResultResponse<Void>> handleDataIntegrity(DataIntegrityViolationException ex) {
+        log.warn("Data integrity violation", ex);
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ResultResponse.fail(409, "DATA_CONFLICT", "데이터 제약 조건에 위배되었습니다."));
+    }
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ResultResponse<Void>> handleNotReadable(HttpMessageNotReadableException ex) {
         log.debug("Invalid request body", ex);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ResultResponse.fail(400, "INVALID_REQUEST_BODY",
-                        "요청 본문을 해석할 수 없습니다. 항목 유형은 NOTICE 만 사용할 수 있습니다."));
+                        "요청 본문을 해석할 수 없거나 형식이 잘못되었습니다."));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

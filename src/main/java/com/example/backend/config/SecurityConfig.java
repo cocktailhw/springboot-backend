@@ -64,10 +64,16 @@ public class SecurityConfig {
                                 "/api/v1/auth/logout",
                                 "/api/v1/auth/signup").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/health/**", "/actuator/prometheus").permitAll()
+                        // 다운로드는 인증 필수 (목록 permitAll 보다 먼저 매칭)
+                        .requestMatchers(HttpMethod.GET, "/api/v1/portal/files/download/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/v1/portal/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/portal/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/portal/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/portal/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/minwon/my").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/minwon").hasRole("USER")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/minwon").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/minwon/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
