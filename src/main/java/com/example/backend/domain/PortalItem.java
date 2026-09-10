@@ -32,6 +32,13 @@ public class PortalItem extends BaseTimeEntity {
     @Column(nullable = false, length = 20)
     private ItemType type;
 
+    /**
+     * 게시판 구분: NOTICE(시정소식) / INFO(정보공개) / PARTICIPATE(시민참여)
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private PortalCategory category;
+
     @Column(nullable = false, length = 200)
     private String title;
 
@@ -56,8 +63,15 @@ public class PortalItem extends BaseTimeEntity {
 
     private Long fileSize;
 
-    public void update(ItemType type, String title, String content, String department, String status) {
+    public void update(
+            ItemType type,
+            PortalCategory category,
+            String title,
+            String content,
+            String department,
+            String status) {
         this.type = type;
+        this.category = category;
         this.title = title;
         this.content = content;
         this.department = department;

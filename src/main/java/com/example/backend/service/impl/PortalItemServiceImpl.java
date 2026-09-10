@@ -5,7 +5,9 @@ import java.time.LocalDateTime;
 
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -13,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.backend.common.DuplicateRequestException;
 import com.example.backend.domain.ItemType;
+import com.example.backend.domain.PortalCategory;
 import com.example.backend.domain.PortalItem;
 import com.example.backend.repository.PortalItemRepository;
 import com.example.backend.service.FileDownloadInfo;
@@ -35,8 +38,17 @@ public class PortalItemServiceImpl implements PortalItemService {
     private final FileStorageService fileStorageService;
 
     @Override
-    public Page<PortalItemVO> selectPortalItemList(ItemType type, Pageable pageable) {
-        return portalItemRepository.findByTypeOrderByCreatedAtDesc(type, pageable)
+    public Page<PortalItemVO> selectPortalItemList(
+            ItemType type, PortalCategory category, String keyword, Pageable pageable) {
+        String normalizedKeyword = StringUtils.hasText(keyword) ? keyword.trim() : null;
+        Pageable sortedPageable = pageable.getSort().isSorted()
+                ? pageable
+                : PageRequest.of(
+                        pageable.getPageNumber(),
+                        pageable.getPageSize(),
+                        Sort.by(Sort.Direction.DESC, "createdAt"));
+        return portalItemRepository
+                .search(type, category, normalizedKeyword, sortedPageable)
                 .map(PortalItemVO::from);
     }
 
@@ -56,8 +68,13 @@ public class PortalItemServiceImpl implements PortalItemService {
             fileSize = storedFile.fileSize();
         }
 
+        PortalCategory category = request.getCategory() != null
+                ? request.getCategory()
+                : PortalCategory.NOTICE;
+
         PortalItem item = PortalItem.builder()
                 .type(request.getType())
+                .category(category)
                 .title(request.getTitle())
                 .content(request.getContent())
                 .department(request.getDepartment())
@@ -75,8 +92,13 @@ public class PortalItemServiceImpl implements PortalItemService {
     @Transactional
     public PortalItemVO updateItem(Long id, PortalItemRequest request, MultipartFile file) {
         PortalItem item = findPortalItem(id);
+        PortalCategory category = request.getCategory() != null
+                ? request.getCategory()
+                : item.getCategory();
+
         item.update(
                 request.getType(),
+                category,
                 request.getTitle(),
                 request.getContent(),
                 request.getDepartment(),

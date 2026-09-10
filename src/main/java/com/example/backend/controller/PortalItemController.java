@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.example.backend.common.ResultResponse;
 import com.example.backend.domain.ItemType;
+import com.example.backend.domain.PortalCategory;
 import com.example.backend.service.FileDownloadInfo;
 import com.example.backend.service.PortalItemService;
 import com.example.backend.vo.PortalItemRequest;
@@ -42,8 +43,11 @@ public class PortalItemController {
     @GetMapping
     public ResultResponse<Page<PortalItemVO>> getPortalItems(
             @RequestParam ItemType type,
+            @RequestParam(required = false) PortalCategory category,
+            @RequestParam(required = false) String keyword,
             @PageableDefault(size = 10) Pageable pageable) {
-        return ResultResponse.ok(portalItemService.selectPortalItemList(type, pageable));
+        return ResultResponse.ok(
+                portalItemService.selectPortalItemList(type, category, keyword, pageable));
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

@@ -3,6 +3,7 @@ package com.example.backend.vo;
 import java.time.LocalDateTime;
 
 import com.example.backend.domain.ItemType;
+import com.example.backend.domain.PortalCategory;
 import com.example.backend.domain.PortalItem;
 
 import lombok.Builder;
@@ -16,6 +17,7 @@ public class PortalItemVO {
 
     private final Long id;
     private final ItemType type;
+    private final PortalCategory category;
     private final String title;
     private final String content;
     private final String department;
@@ -36,6 +38,7 @@ public class PortalItemVO {
         return PortalItemVO.builder()
                 .id(entity.getId())
                 .type(entity.getType())
+                .category(entity.getCategory())
                 .title(entity.getTitle())
                 .content(entity.getContent())
                 .department(entity.getDepartment())
